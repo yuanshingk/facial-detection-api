@@ -1,20 +1,23 @@
 const express = require('express');
-const fs = require('fs');
+const stream = require('stream');
 const { v4: uuidv4 } = require('uuid');
 const vision = require('@google-cloud/vision');
+const { Storage } = require('@google-cloud/storage');
 const app = express();
-const port = 3000;
-const imageDirectory = process.env['FILE_STORAGE'];
+const port = process.env.PORT || 3000;
 
 const imageAnnotatorClient = new vision.ImageAnnotatorClient();
-if (!fs.existsSync(imageDirectory)) {
-    fs.mkdirSync(imageDirectory);
-}
+const storage = new Storage();
 
-const keyFile = process.env['GOOGLE_APPLICATION_CREDENTIALS'];
+const bucketName = process.env.GCLOUD_STORAGE_BUCKET;
+const bucket = storage.bucket(bucketName);
 
 app.set('trust proxy', true);
 app.use(express.json({ limit: '50mb' }));
+
+app.get('/liveness', (req, res) => {
+    res.status(200).send('OK');
+});
 
 app.post('/images', async (req, res) => {
     if (!req.body.image) {
@@ -23,23 +26,39 @@ app.post('/images', async (req, res) => {
     }
 
     const imageId = uuidv4();
-    const imageFilePath = `${imageDirectory}/${imageId}.png`;
-    let imageError = null;
-    fs.writeFile(imageFilePath, req.body.image, 'base64', (err) => {
-        if (err) {
-            imageError = err;
-        }
-    });
+    const imageFilePath = `${imageId}.png`;
+    console.log(`imageFilePath: ${imageFilePath}`);
 
-    if (imageError) {
-        console.log(`Image Creation Error: ${imageError}`);
-        res.status(400).send('image is not valid');
-        return;
-    }
+    // write base64 image into cloud storage
+    var bufferStream = new stream.PassThrough();
+    bufferStream.end(Buffer.from(req.body.image, 'base64'));
+    var file = bucket.file(`${imageId}.png`);
+    await new Promise((resolve, reject) => {
+        bufferStream
+            .pipe(
+                file.createWriteStream({
+                    metadata: {
+                        contentType: 'image/png',
+                        metadata: {
+                            custom: 'metadata',
+                        },
+                    },
+                    public: true,
+                    validation: 'md5',
+                })
+            )
+            .on('error', function (err) {
+                console.log(`Cloud Storage Error: ${err}`);
+                reject(err);
+            })
+            .on('finish', function () {
+                resolve();
+            });
+    });
 
     try {
         const [result] = await imageAnnotatorClient.faceDetection(
-            imageFilePath
+            `https://storage.googleapis.com/${bucket.name}/${file.name}`
         );
 
         res.status(200).send({
@@ -49,11 +68,7 @@ app.post('/images', async (req, res) => {
         console.log(`Google Vision Error: ${err}`);
         res.status(500).send('image processing failed');
     } finally {
-        fs.unlink(imageFilePath, (err) => {
-            if (err) {
-                console.log(`Delete Image Error: ${err}`);
-            }
-        });
+        await storage.bucket(bucket.name).file(file.name).delete();
     }
 });
 

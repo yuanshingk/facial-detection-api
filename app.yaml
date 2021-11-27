@@ -1,5 +1,5 @@
 runtime: nodejs16
 
 env_variables:
-  GOOGLE_APPLICATION_CREDENTIALS: '.\facial-detection-key.json'
-  FILE_STORAGE: '/tmp'
+  GOOGLE_APPLICATION_CREDENTIALS: 'facial-detection-key.json'
+  GCLOUD_STORAGE_BUCKET: 'facial-detection-333313.appspot.com'
