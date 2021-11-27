@@ -15,7 +15,7 @@ jobs:
         uses: finnp/create-file-action@1.0.0
         env:
           FILE_NAME: "./facial-detection-key.json"
-          FILE_DATA: ${{ secrets.FACIAL_DETECTION_KEY }}
+          FILE_BASE64: ${{ secrets.FACIAL_DETECTION_KEY }}
       
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@main
