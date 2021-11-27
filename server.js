@@ -59,9 +59,20 @@ app.post('/images', async (req, res) => {
     });
 
     try {
-        const [result] = await imageAnnotatorClient.faceDetection(
-            `https://storage.googleapis.com/${bucket.name}/${file.name}`
-        );
+        const [result] = await imageAnnotatorClient.annotateImage({
+            image: {
+                source: {
+                    imageUri: `https://storage.googleapis.com/${bucket.name}/${file.name}`,
+                },
+            },
+            features: [
+                {
+                    maxResults: 100,
+                    type: vision.protos.google.cloud.vision.v1.Feature.Type
+                        .FACE_DETECTION,
+                },
+            ],
+        });
 
         res.status(200).send({
             count: result.faceAnnotations.length,
