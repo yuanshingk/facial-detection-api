@@ -1,11 +1,10 @@
 const express = require('express');
-const axios = require('axios').default;
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const vision = require('@google-cloud/vision');
 const app = express();
 const port = 3000;
-const imageDirectory = './images';
+const imageDirectory = process.env['FILE_STORAGE'];
 
 const imageAnnotatorClient = new vision.ImageAnnotatorClient();
 if (!fs.existsSync(imageDirectory)) {
