@@ -12,11 +12,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Create Vision API Key File
-        uses: finnp/create-file-action@1.0.0
-        env:
-          FILE_NAME: "./facial-detection-key.json"
-          FILE_DATA: ${{ secrets.FACIAL_DETECTION_KEY }}
-      
+        id: create-json
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "facial-detection-key.json"
+          json: ${{ secrets.FACIAL_DETECTION_KEY }}
+
       - name: Deploy to Google App Engine
         uses: google-github-actions/deploy-appengine@main
         with:
