@@ -1,0 +1,23 @@
+name: CI
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Create Vision API Key File
+        uses: finnp/create-file-action@1.0.0
+        env:
+          FILE_NAME: "./facial-detection-key.json"
+          FILE_DATA: ${{ secrets.FACIAL_DETECTION_KEY }}
+      
+      - name: Deploy to Google App Engine
+        uses: google-github-actions/deploy-appengine@main
+        with:
+          credentials: ${{ secrets.GCP_SA_KEY }}
