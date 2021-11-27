@@ -4,8 +4,11 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": ".\\serve.sh",
+    "serve": ".\\serve.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "16.x.x"
   },
   "author": "",
   "license": "ISC",

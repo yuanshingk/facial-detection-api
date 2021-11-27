@@ -14,6 +14,7 @@ if (!fs.existsSync(imageDirectory)) {
 
 const keyFile = process.env['GOOGLE_APPLICATION_CREDENTIALS'];
 
+app.set('trust proxy', true);
 app.use(express.json({ limit: '50mb' }));
 
 app.post('/images', async (req, res) => {
