@@ -1,5 +1,6 @@
 const express = require('express');
 const stream = require('stream');
+const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const vision = require('@google-cloud/vision');
 const { Storage } = require('@google-cloud/storage');
@@ -14,6 +15,7 @@ const bucket = storage.bucket(bucketName);
 
 app.set('trust proxy', true);
 app.use(express.json({ limit: '50mb' }));
+app.use(cors());
 
 app.get('/liveness', (req, res) => {
     res.status(200).send('OK');
