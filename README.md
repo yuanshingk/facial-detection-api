@@ -28,3 +28,5 @@ Example Response:
     "count": 5
 }
 ```
+
+For local setup, refer to [DEVELOPMENT.md](DEVELOPMENT.md)
