@@ -20,11 +20,11 @@
 1. Rename it to `facial-detection-key.json`
 1. Run the following in the root folder to serve the application:
     ```
-    $ npm install
+    npm install
     ```
 
     ```
-    $ npm run serve
+    npm run serve
     ```
 
 1. Access the following link in your browser and you should see `OK`
